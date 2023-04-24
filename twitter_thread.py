@@ -38,11 +38,7 @@ questions = [
 ]
 chat_history = []
 
-db = DeepLake(
-    dataset_path="./data/the-algorithm.db",
-    read_only=True,
-    embedding_function=embeddings,
-)
+db = DeepLake(dataset_path="hub://davitbun/twitter-algorithm", read_only=True, embedding_function=embeddings)
 
 retriever = db.as_retriever()
 retriever.search_kwargs["distance_metric"] = "cos"
