@@ -108,7 +108,7 @@ def like_timeline_tweets(
 ):
     authenticated_user_id = api.get_user().id
     for tweet in tweepy.Cursor(api.home_timeline).items(num_tweets):
-        if not tweet.favorited and tweet.user.id != authenticated_user_id
+        if tweet.favorited != True and tweet.user.id != authenticated_user_id:
             like_probability = (
                 relevant_like_probability
                 if is_relevant(tweet, keywords)
