@@ -102,37 +102,57 @@ def retweet_timeline_tweets():
                     print(f"Error retweeting: {e}")
 
 
+def should_respond():
+    return random.random() <= 0.05  # 5% probability of returning True
+
+def generate_response(tweet):
+    # Generate a response using your LLM agent based on the context of the tweet
+    response = chain.run(tweet.text)  # Replace this with your actual LLM-generated response
+    print(f"Responding to {tweet.user.screen_name}: {tweet.text}")
+    return response
+
+def respond_to_timeline_tweets():
+    timeline_tweets = api.home_timeline(count=100)  # Fetch 100 most recent tweets from your timeline
+    my_screen_name = 'lil_bigsky_agi'  # Fetch your account's screen_name
+
+    for tweet in timeline_tweets:
+        if tweet.user.screen_name != my_screen_name and should_respond():
+            response = generate_response(tweet)
+            api.update_status('@{} {}'.format(tweet.user.screen_name, response), in_reply_to_status_id=tweet.id)
+
+
 if __name__ == "__main__":
-    min_follower_count = 50
-    max_follower_count = 5000
-    follow_probability = 0.6  # Set the follow-back probability (0.8 = 80% chance)
-    follow_back_followers(min_follower_count, max_follower_count, follow_probability)
+   respond_to_timeline_tweets()
+   min_follower_count = 50
+   max_follower_count = 5000
+   follow_probability = 0.6  # Set the follow-back probability (0.8 = 80% chance)
+   follow_back_followers(min_follower_count, max_follower_count, follow_probability)
 
-    relevant_like_probability = (
-        0.35  # Set the like probability for relevant tweets (0.65 = 65% chance)
-    )
-    irrelevant_like_probability = (
-        0.15  # Set the like probability for irrelevant tweets (0.35 = 35% chance)
-    )
-    num_tweets = 20
-    keywords = [
-        "AGI",
-        "Langchain",
-        "BabyAgi",
-        "Python",
-        "Paradigm",
-        "Ethereum",
-        "Warriors",
-        "NBA",
-        "Coding",
-        "Programming",
-        "DeFi",
-        "Eth",
-        "Ethereum",
-        "OpenAI",
-    ]  # Set your relevant keywords here
-    like_timeline_tweets(
-        relevant_like_probability, irrelevant_like_probability, num_tweets, keywords
-    )
+   relevant_like_probability = (
+       0.35  # Set the like probability for relevant tweets (0.65 = 65% chance)
+   )
+   irrelevant_like_probability = (
+       0.15  # Set the like probability for irrelevant tweets (0.35 = 35% chance)
+   )
+   num_tweets = 20
+   keywords = [
+       "AGI",
+       "Langchain",
+       "BabyAgi",
+       "Python",
+       "Paradigm",
+       "Ethereum",
+       "Warriors",
+       "NBA",
+       "Coding",
+       "Programming",
+       "DeFi",
+       "Eth",
+       "Ethereum",
+       "OpenAI",
+   ]  # Set your relevant keywords here
+   like_timeline_tweets(
+       relevant_like_probability, irrelevant_like_probability, num_tweets, keywords
+   )
 
-    retweet_timeline_tweets()
+   retweet_timeline_tweets()
