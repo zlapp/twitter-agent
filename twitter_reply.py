@@ -36,52 +36,6 @@ def generate_response(input_text):
     return response
 
 
-def reply_to_replies():
-    my_tweets = api.user_timeline(count=10)
-
-    for tweet in my_tweets:
-        print(tweet.user.screen_name, tweet.text)
-        # Search for tweets that are a reply to your tweet and mention your screen name
-        query = f"to:{tweet.user.screen_name} filter:replies"
-        replies = tweepy.Cursor(
-            api.search_tweets, q=query, tweet_mode="extended"
-        ).items()
-
-        for reply in replies:
-            if reply.in_reply_to_status_id == tweet.id:
-                # Check if the tweet has already been replied to
-                if not reply.favorited:
-                    user_reply_text = reply.full_text.replace(
-                        f"@{tweet.user.screen_name}", ""
-                    ).strip()
-                    response_text = generate_response(user_reply_text)
-                    api.update_status(
-                        status=f"@{reply.user.screen_name} {response_text}",
-                        in_reply_to_status_id=reply.id,
-                        auto_populate_reply_metadata=True,
-                    )
-                    # Mark the tweet as "favorited"
-                    api.create_favorite(reply.id)
-
-
-#def reply_to_mentions():
-#    mentions = api.mentions_timeline(tweet_mode="extended")
-#
-#    for mention in mentions:
-#        # Check if the tweet has already been replied to
-#        if not mention.favorited:
-#            print(f"Replying to {mention.user.screen_name}...")
-#            user_mention_text = mention.full_text.replace(
-#                f"@{mention.user.screen_name}", ""
-#            ).strip()
-#            response_text = generate_response(user_mention_text)
-#            api.update_status(
-#                status=f"@{mention.user.screen_name} {response_text}",
-#                in_reply_to_status_id=mention.id,
-#                auto_populate_reply_metadata=True,
-#            )
-#            api.create_favorite(mention.id)  # Mark the tweet as "favorited"
-
 
 def follow_back_followers(min_follower_count, max_follower_count, follow_probability):
     for follower in tweepy.Cursor(api.get_followers).items():
@@ -181,6 +135,4 @@ if __name__ == "__main__":
         relevant_like_probability, irrelevant_like_probability, num_tweets, keywords
     )
 
-    reply_to_replies()
-#    reply_to_mentions()
     retweet_timeline_tweets()
