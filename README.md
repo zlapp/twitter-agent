@@ -16,7 +16,7 @@ Our goal with this project is to equal or surpass human level performance on Twi
     Like tweets: ✅ 
     Follow users: ✅ 
 
-To use the script, you will need to follow these steps:
+Next up: We plan to add longterm memory for all important actions as well as provide agent specific training based on the reception of each tweet and DM.  
 
 ### Installation
 
