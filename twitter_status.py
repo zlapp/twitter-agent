@@ -33,7 +33,7 @@ reply_count = 0
 dm_count = 0
 like_count = 0
 
- # Get tweets from the past 24 hours
+# Get tweets from the past 24 hours
 for tweet in tweepy.Cursor(api.user_timeline, user_id=user.id, tweet_mode="extended", since_id=one_day_ago.timestamp()).items():
     if tweet.in_reply_to_status_id is not None:
         reply_count += 1

@@ -1,5 +1,6 @@
 import os, yaml, json
 import main
+import time
 from dotenv import load_dotenv
 import requests
 
@@ -57,7 +58,7 @@ def post_tweet_thread(tweets):
             "text": tweet_text,
         }
 
-        response = post_tweet(payload, refreshed_token, in_reply_to=previous_tweet_id)
+        response = post_thread(payload, refreshed_token, in_reply_to=previous_tweet_id)
         response_json = response.json()
 
         if response.status_code == 201:
@@ -67,3 +68,19 @@ def post_tweet_thread(tweets):
         else:
             print(f"Error posting tweet: {response_json}")
             break
+
+def post_thread(payload, token, in_reply_to=None):
+    print("Tweeting!")
+
+    if in_reply_to is not None:
+        payload["reply"] = {"in_reply_to_tweet_id": in_reply_to}
+
+    return requests.request(
+        "POST",
+        "https://api.twitter.com/2/tweets",
+        json=payload,
+        headers={
+            "Authorization": "Bearer {}".format(token["access_token"]),
+            "Content-Type": "application/json",
+        },
+    )

@@ -1,4 +1,5 @@
 import os
+import tweepy
 import random
 import twitter_actions
 import faiss
@@ -23,15 +24,24 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 SERPER_API_KEY = os.getenv("SERPER_API_KEY", "")
 token = twitter_actions.fetch_token()
 
+api_key = os.getenv("API_KEY", "")
+api_secret_key = os.getenv("API_SECRET_KEY", "")
+access_token = os.getenv("ACCESS_TOKEN", "")
+access_token_secret = os.getenv("ACCESS_TOKEN_SECRET", "")
+
+auth = tweepy.OAuth1UserHandler(
+    api_key, api_secret_key, access_token, access_token_secret
+)
+
+api = tweepy.API(auth)
+
 # Define your embedding model
 embeddings_model = OpenAIEmbeddings()
 
 # Initialize the vectorstore as empty
-#
 embedding_size = 1536
 index = faiss.IndexFlatL2(embedding_size)
 vectorstore = FAISS(embeddings_model.embed_query, index, InMemoryDocstore({}), {})
-
 
 todo_prompt = PromptTemplate.from_template(
     "You are a planner who is an expert at coming up with a todo list for a given objective. Come up with a todo list for this objective: {objective} The todo list must not be longer than four tasks and must end with the Objective being completed."
