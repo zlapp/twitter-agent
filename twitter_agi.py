@@ -83,7 +83,9 @@ include = [
     "Don't use emojis or hashtags"
 ]
 include = random.choice(include)
-OBJECTIVE = f"Write an exciting tweet about {theme}. {include}"
+emotions = prompts["emotions"]
+emotion = random.choice(emotions)
+OBJECTIVE = f"Write an exciting tweet about {theme}. {include}.  Use the following {emotion}"
 
 # Logging of LLMChains
 verbose = False

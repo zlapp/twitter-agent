@@ -47,13 +47,10 @@ def reply_to_replies():
             api.search_tweets, q=query, tweet_mode="extended"
         ).items()
 
-        # Keep track of replied tweets using a set
-        replied_tweet_ids = set()
-
         for reply in replies:
             if reply.in_reply_to_status_id == tweet.id:
                 # Check if the tweet has already been replied to
-                if reply.id not in replied_tweet_ids:
+                if not reply.favorited:
                     user_reply_text = reply.full_text.replace(
                         f"@{tweet.user.screen_name}", ""
                     ).strip()
@@ -63,8 +60,8 @@ def reply_to_replies():
                         in_reply_to_status_id=reply.id,
                         auto_populate_reply_metadata=True,
                     )
-                    # Add the replied tweet ID to the set
-                    replied_tweet_ids.add(reply.id)
+                    # Mark the tweet as "favorited"
+                    api.create_favorite(reply.id)
 
 def reply_to_mentions():
     mentions = api.mentions_timeline(tweet_mode='extended')
