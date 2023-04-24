@@ -16,7 +16,7 @@ Our goal with this project is to equal or surpass human level performance on Twi
     Like tweets: ✅ 
     Follow users: ✅ 
 
-Next up: We plan to add longterm memory for all important actions as well as provide agent specific training based on the reception of each tweet and DM.  
+Next up: We plan to add longterm memory for all important actions as well as provide agent specific training based on the reception of each tweet and DM.  If you are interested in designing a good agent training plan let us know!
 
 ### Installation
 
