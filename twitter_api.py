@@ -15,6 +15,7 @@ from langchain.vectorstores import DeepLake
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.memory import VectorStoreRetrieverMemory
 from twitter_actions import fetch_token
+from langchain.document_loaders import TwitterTweetLoader
 
 load_dotenv()
 
@@ -32,20 +33,32 @@ auth = tweepy.OAuth1UserHandler(
 
 api = tweepy.API(auth)
 
-refreshed_token = fetch_token()
-
-with open("twitter_openapi.yaml") as f:
-    data = yaml.load(f, Loader=yaml.FullLoader)
-json_spec=JsonSpec(dict_=data, max_value_length=4000)
-
-headers = {'Authorization': f'Bearer {auth.access_token}'}
-twitter_requests_wrapper=RequestsWrapper(headers=headers)
-
-openapi_toolkit = OpenAPIToolkit.from_llm(OpenAI(temperature=0.8), json_spec, twitter_requests_wrapper, verbose=True)
-twitter_agent_executor = create_openapi_agent(
-    llm=OpenAI(temperature=0),
-    toolkit=openapi_toolkit,
-    verbose=True
+loader = TwitterTweetLoader.from_secrets(
+    access_token=access_token,
+    access_token_secret=access_token_secret,
+    consumer_key=api_key,
+    consumer_secret=api_secret_key,
+    twitter_users=['zerohedge'],
+    number_tweets=50,  # Default value is 100
 )
+documents = loader.load()
 
-twitter_agent_executor.run("Make a funny tweet about Jeff Bezos.")
+# Fetch a tweet by ID
+tweet_text = documents[0].page_content
+tweet_id = documents[0].metadata['user_info']['status']['id']
+tweet = api.get_status(tweet_id)
+
+# Construct the tweet URL
+tweet_url = f"https://twitter.com/{'zerohedge'}/status/{tweet.id}"
+
+llm = OpenAI(temperature=0.9)
+
+prompt = PromptTemplate(
+    input_variables=["input_text"],
+    template="You are a tweet reply agent.  You are replying to a tweet that says: {input_text}.  Make sure the reply is under 140 characters.  Be sarcastic, funny, and a little paranoid.",
+)
+quote_tweet_chain = LLMChain(llm=llm, prompt=prompt)
+text = quote_tweet_chain.run(input_text=tweet_text)
+
+# Quote it in a new status
+api.update_status(text, attachment_url=tweet_url)
