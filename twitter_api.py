@@ -1,21 +1,11 @@
-from langchain.agents import create_openapi_agent
-from langchain.agents.agent_toolkits import OpenAPIToolkit
 from langchain.llms.openai import OpenAI
-from langchain.requests import RequestsWrapper
-from langchain.tools.json.tool import JsonSpec
 import os
-import yaml
 import tweepy
 import random
 from dotenv import load_dotenv
 from langchain.prompts import PromptTemplate
-from langchain.llms import OpenAI
-from langchain.chains import LLMChain, ConversationChain
-from langchain.vectorstores import DeepLake
-from langchain.embeddings import OpenAIEmbeddings
-from langchain.memory import VectorStoreRetrieverMemory
-from twitter_actions import fetch_token
 from langchain.document_loaders import TwitterTweetLoader
+from prompts import prompts
 
 load_dotenv()
 
@@ -33,12 +23,15 @@ auth = tweepy.OAuth1UserHandler(
 
 api = tweepy.API(auth)
 
+users = prompts["users"]
+user = random.choice(users)
+
 loader = TwitterTweetLoader.from_secrets(
     access_token=access_token,
     access_token_secret=access_token_secret,
     consumer_key=api_key,
     consumer_secret=api_secret_key,
-    twitter_users=['zerohedge'],
+    twitter_users=user,
     number_tweets=50,  # Default value is 100
 )
 documents = loader.load()
@@ -55,7 +48,7 @@ llm = OpenAI(temperature=0.9)
 
 prompt = PromptTemplate(
     input_variables=["input_text"],
-    template="You are a tweet reply agent.  You are replying to a tweet that says: {input_text}.  Make sure the reply is under 140 characters.  Be sarcastic, funny, and a little paranoid.",
+    template="You are a tweet reply agent.  You are replying to a tweet that says: {input_text}.  Make sure the reply is under 140 characters.  Be sassy, sarcastic, and over the top.  You want to make people cry laughing.  Always take the opposite position of the text",
 )
 quote_tweet_chain = LLMChain(llm=llm, prompt=prompt)
 text = quote_tweet_chain.run(input_text=tweet_text)

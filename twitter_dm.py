@@ -53,7 +53,7 @@ conversation_with_summary = ConversationChain(
     llm=llm,
     prompt=PROMPT,
     memory=memory,
-    verbose=True
+    verbose=False,
 )
 
 def get_last_dm_sent_to(user_id):
@@ -75,13 +75,12 @@ def reply_to_new_direct_messages():
                     input_text = dm.message_create["message_data"]["text"]
                     if random.random() < 0.8:  # Randomly decide to reply or not
                         # Retrieve user-specific memory
-                        user = api.get_user(user_id=sender_id).user_name
-                        conversation_with_summary.memory = memory.retrieve_context(user)
+                        user = api.get_user(user_id=sender_id).screen_name
 
-                        reply_text = conversation_with_summary.predict(input=input_text)
+                        reply_text = conversation_with_summary.run(input=input_text)
 
                         # Save conversation to user-specific memory
-                        memory.save_context(sender_id, {"input": input_text}, {"output": reply_text})
+                        memory.save_context({"input": input_text}, {"output": reply_text})
 
                         api.send_direct_message(sender_id, reply_text)
                 except tweepy.TweepError as e:

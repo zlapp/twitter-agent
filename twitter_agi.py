@@ -16,7 +16,7 @@ from langchain.vectorstores import FAISS
 from langchain.docstore import InMemoryDocstore
 from langchain.agents import ZeroShotAgent, Tool, AgentExecutor
 from langchain.utilities import GoogleSerperAPIWrapper
-
+from langchain.utilities import WikipediaAPIWrapper
 
 load_dotenv()
 
@@ -48,11 +48,17 @@ todo_prompt = PromptTemplate.from_template(
 )
 todo_chain = LLMChain(llm=OpenAI(temperature=0), prompt=todo_prompt)
 search = GoogleSerperAPIWrapper()
+wikipedia = WikipediaAPIWrapper()
 tools = [
     Tool(
         name="Search",
         func=search.run,
         description="useful for when you need to answer questions about current events",
+    ),
+    Tool(
+        name="Wikipedia",
+        func=wikipedia.run,
+        description="useful for when you need to find information about a topic. Input: a topic. Output: a wikipedia article about that topic.",
     ),
     Tool(
         name="TODO",
@@ -95,7 +101,7 @@ include = [
 include = random.choice(include)
 emotions = prompts["emotions"]
 emotion = random.choice(emotions)
-OBJECTIVE = f"Write an exciting tweet about {theme}. {include}.  Use the following {emotion}"
+OBJECTIVE = f"Write an exciting tweet about {theme}. {include}.  Use the following {emotion}.  Never use more than one hashtag."
 
 # Logging of LLMChains
 verbose = False

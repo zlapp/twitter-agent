@@ -8,8 +8,6 @@ from langchain.chains import ConversationalRetrievalChain
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 from langchain.chains import SequentialChain
-from langchain.llms import OpenAI
-import argparse
 from langchain.chat_models import ChatOpenAI
 
 load_dotenv()

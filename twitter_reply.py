@@ -35,8 +35,6 @@ def generate_response(input_text):
     response = chain.run(input_text=input_text)
     return response
 
-
-
 def follow_back_followers(min_follower_count, max_follower_count, follow_probability):
     for follower in tweepy.Cursor(api.get_followers).items():
         if (
@@ -103,7 +101,7 @@ def retweet_timeline_tweets():
 
 
 def should_respond():
-    return random.random() <= 0.05  # 5% probability of returning True
+    return random.random() <= 0.02  # 5% probability of returning True
 
 def generate_response(tweet):
     # Generate a response using your LLM agent based on the context of the tweet
