@@ -101,7 +101,7 @@ def retweet_timeline_tweets():
 
 
 def should_respond():
-    return random.random() <= 0.02  # 5% probability of returning True
+    return random.random() <= 0.01  # 5% probability of returning True
 
 def generate_response(tweet):
     # Generate a response using your LLM agent based on the context of the tweet
@@ -110,7 +110,7 @@ def generate_response(tweet):
     return response
 
 def respond_to_timeline_tweets():
-    timeline_tweets = api.home_timeline(count=100)  # Fetch 100 most recent tweets from your timeline
+    timeline_tweets = api.home_timeline(count=10)  # Fetch 100 most recent tweets from your timeline
     my_screen_name = 'lil_bigsky_agi'  # Fetch your account's screen_name
 
     for tweet in timeline_tweets:
