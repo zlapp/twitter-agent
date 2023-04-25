@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from langchain.prompts import PromptTemplate
 from langchain.document_loaders import TwitterTweetLoader
 from prompts import prompts
+from langchain.chains import LLMChain
 
 load_dotenv()
 
@@ -31,7 +32,7 @@ loader = TwitterTweetLoader.from_secrets(
     access_token_secret=access_token_secret,
     consumer_key=api_key,
     consumer_secret=api_secret_key,
-    twitter_users=user,
+    twitter_users=[user],
     number_tweets=50,  # Default value is 100
 )
 documents = loader.load()
