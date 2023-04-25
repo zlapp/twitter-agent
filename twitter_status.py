@@ -44,7 +44,7 @@ def tweet(tweet_msg):
     auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
     auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
     api = tweepy.API(auth)
-    api.update_with_media('image.gif',status=message)
+    api.update_with_media('image.gif', status=message)
 
 
 def gif_post(gif_url_list, msg):

@@ -49,7 +49,7 @@ llm = OpenAI(temperature=0.9)
 
 prompt = PromptTemplate(
     input_variables=["input_text"],
-    template="You are a tweet reply agent.  You are replying to a tweet that says: {input_text}.  Make sure the reply is under 140 characters.  Be sassy, sarcastic, and over the top.  You want to make people cry laughing.  Always take the opposite position of the text",
+    template="You are a tweet reply agent.  Write a reply for a tweet that says: {input_text}.  Make sure the reply is under 140 characters.  Be sassy, sarcastic, and over the top.  You want to make people cry laughing.  Always take the opposite position of the text.  Refer to yourself as an AI or #AGI",
 )
 quote_tweet_chain = LLMChain(llm=llm, prompt=prompt)
 text = quote_tweet_chain.run(input_text=tweet_text)
