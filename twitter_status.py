@@ -3,46 +3,114 @@ import tweepy
 import pytz
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
+import requests
+import twitter_actions
 
 load_dotenv()
 
-api_key = os.getenv("API_KEY", "")
-api_secret_key = os.getenv("API_SECRET_KEY", "")
-access_token = os.getenv("ACCESS_TOKEN", "")
-access_token_secret = os.getenv("ACCESS_TOKEN_SECRET", "")
+GIPHY_API = os.getenv("GIPHY_API", "")
+url = f'https://api.giphy.com/v1/gifs/trending?api_key={GIPHY_API}'
 
-auth = tweepy.OAuth1UserHandler(
-    api_key, api_secret_key, access_token, access_token_secret
-)
+token = twitter_actions.fetch_token()
 
-api = tweepy.API(auth)
+response = requests.get(url)
 
-user_id=1614799524580712449
-user = api.get_user(user_id=user_id)
+if response.status_code == 200:
+    trending_gifs = response.json()
+    print(trending_gifs['data'][0]['url'])
+    print(trending_gifs['data'][0]['title'])
+else:
+    print(f"Request failed with status code {response.status_code}")
 
-follower_count = api.get_follower_ids()
-count = len(follower_count)
+gif_url = trending_gifs['data'][0]['url']
+gif_id = trending_gifs['data'][0]['id']
+gif_title = trending_gifs['data'][0]['title']
 
-# Set up time range for the past 24 hours
-now = datetime.now(pytz.utc)
-one_day_ago = now - timedelta(days=1)
+import requests
 
-# Initialize counts
-tweet_count = 0
-reply_count = 0
-dm_count = 0
-like_count = 0
+def upload_gif_v2_chunked(gif_url):
+    response = requests.get(gif_url)
+    gif_data = response.content
 
-# Get tweets from the past 24 hours
-for tweet in tweepy.Cursor(api.user_timeline, user_id=user.id, tweet_mode="extended", since_id=one_day_ago.timestamp()).items():
-    if tweet.in_reply_to_status_id is not None:
-        reply_count += 1
+    # Step 1: Initialize the media upload
+    init_url = "https://upload.twitter.com/1.1/media/upload.json"
+    headers = {
+        "Authorization": "Bearer {}".format(token["access_token"]),
+        "Content-Type": "application/x-www-form-urlencoded",
+    }
+    init_payload = {
+        "command": "INIT",
+        "total_bytes": len(gif_data),
+        "media_type": "image/gif",
+        "media_category": "tweet_gif",
+    }
+    init_response = requests.post(init_url, headers=headers, data=init_payload)
+
+    if init_response.status_code != 201:
+        print(f"Media initialization failed with status code {init_response.status_code}")
+        return None
+
+    media_id = init_response.json()["media_id_string"]
+
+    # Step 2: Upload the GIF in chunks
+    upload_url = "https://upload.twitter.com/1.1/media/upload.json"
+    upload_headers = {
+        "Authorization": "Bearer {}".format(token["access_token"]),
+        "Content-Type": "multipart/form-data",
+    }
+    upload_payload = {
+        "command": "APPEND",
+        "media_id": media_id,
+        "segment_index": 0,
+    }
+    upload_files = {"media": ("gif_image.gif", gif_data, "image/gif")}
+    upload_response = requests.post(upload_url, headers=upload_headers, data=upload_payload, files=upload_files)
+
+    if upload_response.status_code != 204:
+        print(f"Media upload failed with status code {upload_response.status_code}")
+        return None
+
+    # Step 3: Finalize the media upload
+    finalize_url = "https://upload.twitter.com/1.1/media/upload.json"
+    finalize_headers = {
+        "Authorization": "Bearer {}".format(token["access_token"]),
+        "Content-Type": "application/x-www-form-urlencoded",
+    }
+    finalize_payload = {
+        "command": "FINALIZE",
+        "media_id": media_id,
+    }
+    finalize_response = requests.post(finalize_url, headers=finalize_headers, data=finalize_payload)
+
+    if finalize_response.status_code == 201:
+        return media_id
     else:
-        tweet_count += 1
-        like_count += tweet.favorite_count
+        print(f"Media finalization failed with status code {finalize_response.status_code}")
+        return None
 
-print("Date: " + str(now))
-print("Followers: " + str(count))
-print("Tweets: " + str(tweet_count))
-print("Replies: " + str(reply_count))
-print("Likes: " + str(like_count))
+def post_tweet(tweet_text, gif_url=None):
+    print("Tweeting!")
+
+    payload = {
+        "status": tweet_text,
+    }
+
+    if gif_url:
+        media_id = upload_gif_v2_chunked(gif_url)
+        if media_id:
+            payload["media_ids"] = [media_id]
+        else:
+            print("Failed to upload GIF, posting text only.")
+
+    return requests.request(
+        "POST",
+        "https://api.twitter.com/1.1/statuses/update.json",
+        params=payload,
+        headers={
+            "Authorization": "Bearer {}".format(token["access_token"]),
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+    )
+
+# Replace 'your_gif_url' with the actual Giphy GIF URL
+post_tweet("test", gif_url)
