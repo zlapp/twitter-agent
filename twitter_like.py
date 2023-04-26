@@ -39,7 +39,7 @@ def is_relevant(tweet, keywords):
 
 
 # Define a function to like tweets from the timeline with a given probability
-def like_timeline_tweets(
+def like_tweets(
     relevant_like_probability, irrelevant_like_probability, num_tweets, keywords
 ):
     authenticated_user_id = api.get_user(screen_name="lil_bigsky_agi").id
@@ -117,7 +117,7 @@ def like_timeline_tweets():
        "Ethereum",
        "OpenAI",
    ]  # Set your relevant keywords here
-   like_timeline_tweets(
+   like_tweets(
        relevant_like_probability, irrelevant_like_probability, num_tweets, keywords
    )
 
