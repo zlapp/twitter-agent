@@ -1,4 +1,5 @@
 import os
+import re
 import tweepy
 import random
 import pytz
@@ -26,7 +27,7 @@ api = tweepy.API(auth)
 llm = OpenAI(temperature=0.9)
 gif_prompt = PromptTemplate(
     input_variables=["input_text"],
-    template="You are a GIF search agent.  Based on the: {input_text} return a single string of keywords use this format 'word+word+word'. Your goal is to find a funny gif to match the input.  Sexy and funny is best",
+    template="You are a GIF search agent.  Based on the: {input_text} return four keywords as a single line like `hello world sexy hello`. Do not use line breaks, or commas. Your goal is to find a funny gif to match the input.  Sexy and funny is best",
 )
 gif_chain = LLMChain(llm=llm, prompt=gif_prompt)
 
@@ -52,14 +53,16 @@ def generate_response(tweet):
     return response
 
 def respond_to_timeline_tweets():
-    timeline_tweets = api.home_timeline(count=10)  # Fetch 100 most recent tweets from your timeline
+    timeline_tweets = api.home_timeline(count=100)  # Fetch 100 most recent tweets from your timeline
     my_screen_name = 'lil_bigsky_agi'  # Fetch your account's screen_name
 
     for tweet in timeline_tweets:
         if tweet.user.screen_name != my_screen_name and should_respond():
             response = generate_response(tweet)
-            result = gif_chain.run(input_text=response)
-            search_gif(result, response)
+            keywords_search = gif_chain.run(input_text=response)
+            search_gif(keywords_search, response)
+            result = api.media_upload('image.gif')
+            api.update_status('@{} {}'.format(tweet.user.screen_name, response), in_reply_to_status_id=tweet.id, media_ids=[result.media_id_string])
 
 def modifier(s):
     '''
@@ -86,14 +89,14 @@ def gif_download(gif_url):
         handler.close()
 
 def tweet(tweet_msg, response):
-    message= response
    # auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
    # auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
    # api = tweepy.API(auth)
 
     result = api.media_upload('image.gif')
     #res = api.get_media_upload_status(result.media_id_string)
-    api.update_status(status=response, media_ids=[result.media_id_string])
+    #api.update_status(status=response, media_ids=[result.media_id_string])
+    return result
 
 def gif_post(gif_url_list, msg, response):
     """
@@ -112,8 +115,9 @@ def search_gif(query, response):
     """
     Searches for GIFs based on a query
     """
-    print("Searching for GIFs based on query: ", query)
-    formatted_query = query.replace(" ", "+")
+    words = re.findall(r'\w+', query, re.MULTILINE)
+    formatted_query = '+'.join(words)
+    print("Searching for GIFs based on query: ", formatted_query)
     giphy_url = "https://api.giphy.com/v1/gifs/search?api_key="+giphy_api_key+"&q="+formatted_query+"&limit=20&offset=0&rating=r&lang=en"
 
     with urllib.request.urlopen(giphy_url) as response:
@@ -135,4 +139,5 @@ def search_gif(query, response):
     gif_urls = []
     slugs = []
 
-respond_to_timeline_tweets()
+if __name__ == "__main__":
+    respond_to_timeline_tweets()

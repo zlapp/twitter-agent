@@ -25,7 +25,6 @@ auth = tweepy.OAuth1UserHandler(
 
 api = tweepy.API(auth)
 
-
 # Embed and store the texts
 username = "bigsky77" # your username on app.activeloop.ai
 dataset_path = f"hub://{username}/twitter_agent" # could be also ./local/path (much faster locally), s3://bucket/path/to/dataset, gcs://path/to/dataset, etc.

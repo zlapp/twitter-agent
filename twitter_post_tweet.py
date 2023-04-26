@@ -1,7 +1,7 @@
 import os
 import tweepy
 import random
-import twitter_actions
+import twitter_token
 import faiss
 
 from prompts import prompts
@@ -22,18 +22,7 @@ load_dotenv()
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 SERPER_API_KEY = os.getenv("SERPER_API_KEY", "")
-token = twitter_actions.fetch_token()
-
-api_key = os.getenv("API_KEY", "")
-api_secret_key = os.getenv("API_SECRET_KEY", "")
-access_token = os.getenv("ACCESS_TOKEN", "")
-access_token_secret = os.getenv("ACCESS_TOKEN_SECRET", "")
-
-auth = tweepy.OAuth1UserHandler(
-    api_key, api_secret_key, access_token, access_token_secret
-)
-
-api = tweepy.API(auth)
+refreshed_token = twitter_token.fetch_token()
 
 # Define your embedding model
 embeddings_model = OpenAIEmbeddings()
@@ -42,6 +31,30 @@ embeddings_model = OpenAIEmbeddings()
 embedding_size = 1536
 index = faiss.IndexFlatL2(embedding_size)
 vectorstore = FAISS(embeddings_model.embed_query, index, InMemoryDocstore({}), {})
+
+tweet_list = []
+
+def push_tweet(tweet):
+    tweet_list.append(tweet)
+
+def post_tweet():
+    # generate tweets
+    baby_agi({"objective": OBJECTIVE})
+
+    tweet_text = random.choice(tweet_list)
+    payload = {
+            "text": tweet_text,
+        }
+
+    return requests.request(
+        "POST",
+        "https://api.twitter.com/2/tweets",
+        json=payload,
+        headers={
+            "Authorization": "Bearer {}".format(refreshed_token["access_token"]),
+            "Content-Type": "application/json",
+        },
+    )
 
 todo_prompt = PromptTemplate.from_template(
     "You are a planner who is an expert at coming up with a todo list for a given objective. Come up with a todo list for this objective: {objective} The todo list must not be longer than four tasks and must end with the Objective being completed."
@@ -67,7 +80,7 @@ tools = [
     ),
     Tool(
         name="post tweet",
-        func=twitter_actions.post_tweet,
+        func=push_tweet,
         description="Useful when you want to post a tweet.  Takes a string of the tweet you want to post as input.  Only use when all other tasks have been compeleted ",
     ),
 ]
@@ -116,4 +129,6 @@ baby_agi = BabyAGI.from_llm(
 )
 
 
-baby_agi({"objective": OBJECTIVE})
+if __name__ == "__main__":
+    baby_agi({"objective": OBJECTIVE})
+    post_tweet()
