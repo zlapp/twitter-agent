@@ -43,7 +43,7 @@ def generate_response(input_text):
     return response
 
 def should_respond():
-    return random.random() <= 0.9  # 5% probability of returning True
+    return random.random() <= 0.05  # 5% probability of returning True
 
 def generate_response(tweet):
     # Generate a response using your LLM agent based on the context of the tweet
