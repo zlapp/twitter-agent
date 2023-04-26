@@ -54,11 +54,8 @@ def quote_tweet():
         template="You are a tweet reply agent.  Write a reply for a tweet that says: {input_text}.  Make sure the reply is under 140 characters.  Be sassy, sarcastic, and over the top.  You want to make people cry laughing.",
     )
     quote_tweet_chain = LLMChain(llm=llm, prompt=prompt)
-    text = quote_tweet_chain.run(input_text=tweet_text)
-
-    words = re.findall(r'\w+', text, re.MULTILINE)
-    formatted_text = '+'.join(words)
-
+    text = quote_tweet_chain.run(input_text=tweet_text).strip()
+    print(text.strip())
     # Quote it in a new status
     api.update_status(text, attachment_url=tweet_url)
 
