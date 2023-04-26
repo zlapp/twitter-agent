@@ -60,7 +60,7 @@ def quote_tweet():
     formatted_text = '+'.join(words)
 
     # Quote it in a new status
-    api.update_status(formatted_text, attachment_url=tweet_url)
+    api.update_status(text, attachment_url=tweet_url)
 
 if __name__ == "__main__":
     quote_tweet()
