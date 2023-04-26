@@ -1,6 +1,7 @@
 import os
 import tweepy
 import random
+import yaml
 from dotenv import load_dotenv
 from langchain.prompts import PromptTemplate
 from langchain.llms import OpenAI
@@ -24,6 +25,9 @@ auth = tweepy.OAuth1UserHandler(
 )
 
 api = tweepy.API(auth)
+
+with open("params.yaml", "r") as file:
+    params = yaml.safe_load(file)
 
 # Embed and store the texts
 username = "bigsky77" # your username on app.activeloop.ai
@@ -72,7 +76,7 @@ def reply_to_new_direct_messages():
                 try:
                     print(f"Replying to DM from {sender_id}")
                     input_text = dm.message_create["message_data"]["text"]
-                    if random.random() < 0.8:  # Randomly decide to reply or not
+                    if random.random() < params["should_respond_probability"]:  # Randomly decide to reply or not
                         # Retrieve user-specific memory
                         user = api.get_user(user_id=sender_id).screen_name
 

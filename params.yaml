@@ -1,0 +1,25 @@
+# Params for Twitter-Agent
+
+# Follow Back Followers
+min_follower_count: 50
+max_follower_count: 5000
+follow_back_probability: 0.6
+
+# Like Probability
+relevant_like_probability: 0.35
+irrelevant_like_probability: 0.15
+
+# Retweet Probability
+retweet_probability: 0.05
+follower_factor: 2
+
+# Response Probabilities:
+response_probabilities:
+  reply_to_new_direct_messages: 0.1
+  quote_tweet: 0.3
+  post_tweet: 0.3
+  like_timeline_tweets: 0.2
+  respond_to_timeline_tweets: 0.1
+
+# DM reply probability
+should_respond_probability: 0.85

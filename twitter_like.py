@@ -1,5 +1,6 @@
 import os
 import tweepy
+import yaml
 import random
 from dotenv import load_dotenv
 from langchain.prompts import PromptTemplate
@@ -18,6 +19,9 @@ auth = tweepy.OAuth1UserHandler(
 )
 
 api = tweepy.API(auth)
+
+with open("params.yaml", "r") as file:
+    params = yaml.safe_load(file)
 
 def follow_back_followers(min_follower_count, max_follower_count, follow_probability):
     for follower in tweepy.Cursor(api.get_followers).items():
@@ -59,10 +63,8 @@ def like_tweets(
 
 
 def retweet_timeline_tweets():
-    # Retweet probability (5%)
-    RETWEET_PROBABILITY = 0.05
-    # Scaling factor for retweet probability of tweets from followers
-    FOLLOWER_FACTOR = 2
+    RETWEET_PROBABILITY = params["retweet_probability"]
+    FOLLOWER_FACTOR = params["follower_factor"]
 
     # Get the user's timeline
     timeline = api.home_timeline()
@@ -85,17 +87,15 @@ def retweet_timeline_tweets():
 
 
 def like_timeline_tweets():
-   min_follower_count = 50
-   max_follower_count = 5000
-   follow_probability = 0.6  # Set the follow-back probability (0.8 = 80% chance)
+   min_follower_count = params["min_follower_count"] #50
+   max_follower_count = params["max_follower_count"] #5000
+   follow_back_probability = params["follow_back_probability"] # Set the follow-back probability (0.8 = 80% chance)
+
    follow_back_followers(min_follower_count, max_follower_count, follow_probability)
 
-   relevant_like_probability = (
-       0.35  # Set the like probability for relevant tweets (0.65 = 65% chance)
-   )
-   irrelevant_like_probability = (
-       0.15  # Set the like probability for irrelevant tweets (0.35 = 35% chance)
-   )
+   relevant_like_probability = params["relevant_like_probability"] # Set the like probability for relevant tweets (0.65 = 65% chance)
+   irrelevant_like_probability = params["irrelevant_like_probability"] # Set the like probability for irrelevant tweets (0.25 = 25% chance)
+
    num_tweets = 20
    keywords = [
        "AGI",
