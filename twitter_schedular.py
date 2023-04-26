@@ -33,13 +33,5 @@ def perform_action():
     action()
 
 
-def job():
+if __name__ == "__main__":
     perform_action()
-
-# Schedule the job to run every 20 minutes
-schedule.every(20).minutes.do(job)
-
-# Keep the script running indefinitely and execute scheduled jobs
-while True:
-    schedule.run_pending()
-    time.sleep(1)
