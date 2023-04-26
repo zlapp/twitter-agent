@@ -16,11 +16,11 @@ def weighted_random_choice(actions, probabilities):
 
 def perform_action():
     actions = [
-        params["reply_to_new_direct_messages"],
-        params["quote_tweet"],
-        params["post_tweet"],
-        params["like_timeline_tweets"],
-        params["respond_to_timeline_tweets"]
+        "reply_to_new_direct_messages",
+        "quote_tweet",
+        "post_tweet",
+        "like_timeline_tweets",
+        "respond_to_timeline_tweets",
     ]
 
     probabilities = [
