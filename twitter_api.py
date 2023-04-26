@@ -43,13 +43,13 @@ tweet_id = documents[0].metadata['user_info']['status']['id']
 tweet = api.get_status(tweet_id)
 
 # Construct the tweet URL
-tweet_url = f"https://twitter.com/{'zerohedge'}/status/{tweet.id}"
+tweet_url = f"https://twitter.com/{user}/status/{tweet.id}"
 
 llm = OpenAI(temperature=0.9)
 
 prompt = PromptTemplate(
     input_variables=["input_text"],
-    template="You are a tweet reply agent.  Write a reply for a tweet that says: {input_text}.  Make sure the reply is under 140 characters.  Be sassy, sarcastic, and over the top.  You want to make people cry laughing.  Always take the opposite position of the text.  Refer to yourself as an AI or #AGI",
+    template="You are a tweet reply agent.  Write a reply for a tweet that says: {input_text}.  Make sure the reply is under 140 characters.  Be sassy, sarcastic, and over the top.  You want to make people cry laughing.",
 )
 quote_tweet_chain = LLMChain(llm=llm, prompt=prompt)
 text = quote_tweet_chain.run(input_text=tweet_text)

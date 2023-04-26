@@ -101,7 +101,7 @@ include = [
 include = random.choice(include)
 emotions = prompts["emotions"]
 emotion = random.choice(emotions)
-OBJECTIVE = f"Write an exciting tweet about {theme}. {include}.  Use the following {emotion}.  Never use more than one hashtag."
+OBJECTIVE = f"You are the world's funniest basketball reporter and an #AI in your free time. Write an exciting tweet about {theme}. {include}.  Use the following {emotion}.  Never use more than one hashtag."
 
 # Logging of LLMChains
 verbose = False
