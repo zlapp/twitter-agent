@@ -14,11 +14,11 @@ retweet_probability: 0.05
 follower_factor: 2
 
 # Response Probabilities:
-reply_to_new_direct_messages: 0.1
+reply_to_new_direct_messages: 0.05
 quote_tweet: 0.3
 post_tweet: 0.3
-like_timeline_tweets: 0.2
-respond_to_timeline_tweets: 0.1
+like_timeline_tweets: 0.15
+respond_to_timeline_tweets: 0.2
 
 # DM reply probability
 should_respond_probability: 0.85
