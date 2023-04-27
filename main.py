@@ -4,7 +4,6 @@ import os
 import re
 import json
 import time
-import requests
 import redis
 from requests_oauthlib import OAuth2Session
 from flask import Flask, request, redirect, session

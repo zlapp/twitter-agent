@@ -3,6 +3,7 @@ import tweepy
 import random
 import twitter_token
 import faiss
+import requests
 
 from prompts import prompts
 from collections import deque
