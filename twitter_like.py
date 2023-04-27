@@ -91,7 +91,7 @@ def like_timeline_tweets():
    max_follower_count = params["max_follower_count"] #5000
    follow_back_probability = params["follow_back_probability"] # Set the follow-back probability (0.8 = 80% chance)
 
-   follow_back_followers(min_follower_count, max_follower_count, follow_probability)
+   follow_back_followers(min_follower_count, max_follower_count, follow_back_probability)
 
    relevant_like_probability = params["relevant_like_probability"] # Set the like probability for relevant tweets (0.65 = 65% chance)
    irrelevant_like_probability = params["irrelevant_like_probability"] # Set the like probability for irrelevant tweets (0.25 = 25% chance)
