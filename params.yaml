@@ -22,3 +22,6 @@ respond_to_timeline_tweets: 0.2
 
 # DM reply probability
 should_respond_probability: 0.85
+
+# GIF reply probability
+gif_respond_probability: 0.25

@@ -3,6 +3,7 @@ import re
 import tweepy
 import random
 import pytz
+import yaml
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
 import requests
@@ -24,6 +25,9 @@ auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
 auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
 api = tweepy.API(auth)
 
+with open("params.yaml", "r") as file:
+    params = yaml.safe_load(file)
+
 llm = OpenAI(temperature=0.9)
 gif_prompt = PromptTemplate(
     input_variables=["input_text"],
@@ -44,7 +48,7 @@ def generate_response(input_text):
     return response
 
 def should_respond():
-    return random.random() <= 0.05  # 5% probability of returning True
+    return random.random() <= params["gif_respond_probability"]  # 5% probability of returning True
 
 def generate_response(tweet):
     # Generate a response using your LLM agent based on the context of the tweet

@@ -26,9 +26,9 @@ def perform_action():
     probabilities = [
         0.1,  # reply_to_new_direct_messages
         0.3,  # quote_tweet
-        0.3,  # post_tweet
+        0.1,  # post_tweet
         0.2,  # like_timeline_tweets
-        0.1   # respond_to_timeline_tweets
+        0.3   # respond_to_timeline_tweets
     ]
 
     # Select and perform an action based on the probabilities
