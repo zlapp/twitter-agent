@@ -9,7 +9,14 @@ from langchain.chains import LLMChain, ConversationChain
 from langchain.vectorstores import DeepLake
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.memory import VectorStoreRetrieverMemory
+from langchain.memory import ConversationEntityMemory
+from langchain.memory.prompt import ENTITY_MEMORY_CONVERSATION_TEMPLATE
+from pydantic import BaseModel
+from typing import List, Dict, Any
+import spacy
 
+
+nlp = spacy.load('en_core_web_lg')
 load_dotenv()
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
@@ -33,30 +40,60 @@ with open("params.yaml", "r") as file:
 username = "bigsky77" # your username on app.activeloop.ai
 dataset_path = f"hub://{username}/twitter_agent" # could be also ./local/path (much faster locally), s3://bucket/path/to/dataset, gcs://path/to/dataset, etc.
 
+class SpacyEntityMemory(VectorStoreRetrieverMemory):
+    """Memory class for storing information about entities."""
+
+    def __init__(self, retriever):
+        super().__init__(retriever=retriever)
+        self.memory_key = "entities"
+
+    @property
+    def memory_variables(self) -> List[str]:
+        """Define the variables we are providing to the prompt."""
+        return [self.memory_key]
+
+    def load_memory_variables(self, inputs: Dict[str, Any]) -> Dict[str, str]:
+        """Load the memory variables, in this case the entity key."""
+        doc = nlp(inputs[list(inputs.keys())[0]])
+        entities = [self.retriever.vectorstore.get_vector(str(ent)).decode("utf-8") for ent in doc.ents if self.retriever.vectorstore.has_vector(str(ent))]
+        return {self.memory_key: "\n".join(entities)}
+
+    def save_context(self, inputs: Dict[str, Any], outputs: Dict[str, str]) -> None:
+        """Save context from this conversation to buffer."""
+        text = inputs[list(inputs.keys())[0]]
+        doc = nlp(text)
+        for ent in doc.ents:
+            ent_str = str(ent)
+            if self.retriever.vectorstore.has_vector(ent_str):
+                current_text = self.retriever.vectorstore.get_vector(ent_str).decode("utf-8")
+                self.retriever.vectorstore.set_vector(ent_str, (current_text + f"\n{text}").encode("utf-8"))
+            else:
+                self.retriever.vectorstore.set_vector(ent_str, text.encode("utf-8"))
+
 embeddings = OpenAIEmbeddings()
 vectorstore = DeepLake(dataset_path=dataset_path, embedding_function=embeddings)
 retriever = vectorstore.as_retriever(search_kwargs=dict(k=1))
-memory = VectorStoreRetrieverMemory(retriever=retriever)
-
 llm = OpenAI(temperature=0.9)
-_DEFAULT_TEMPLATE = """The following is a friendly conversation between a human and an AI. The AI is talkative and provides lots of specific details from its context. If the AI does not know the answer to a question, it truthfully says it does not know.
 
-Relevant pieces of previous conversation:
-{history}
+template = """The following is a friendly conversation between a human and an AI. The AI is talkative and provides lots of specific details from its context. If the AI does not know the answer to a question, it truthfully says it does not know. You are provided with information about entities the Human mentions, if relevant.
 
-(You do not need to use these pieces of information if not relevant)
+Relevant entity information:
+{entities}
 
-Current conversation:
+Conversation:
 Human: {input}
 AI:"""
-PROMPT = PromptTemplate(
-    input_variables=["history", "input"], template=_DEFAULT_TEMPLATE
+prompt = PromptTemplate(
+    input_variables=["entities", "input"], template=template
 )
-conversation_with_summary = ConversationChain(
+
+memory = SpacyEntityMemory(retriever=retriever)
+
+conversation = ConversationChain(
     llm=llm,
-    prompt=PROMPT,
+    verbose=True,
+    prompt=prompt,
     memory=memory,
-    verbose=False,
 )
 
 def get_last_dm_sent_to(user_id):
@@ -80,14 +117,16 @@ def reply_to_new_direct_messages():
                         # Retrieve user-specific memory
                         user = api.get_user(user_id=sender_id).screen_name
 
-                        reply_text = conversation_with_summary.run(input=input_text)
+                        reply_text = conversation.predict(input=input_text)
 
                         # Save conversation to user-specific memory
                         memory.save_context({"input": input_text}, {"output": reply_text})
 
                         api.send_direct_message(sender_id, reply_text)
-                except tweepy.TweepError as e:
-                    print(f"Error replying to DM from {sender_id}: {e}")
+
+                except Exception as e:
+                    print(e)
+                    api.send_direct_message(sender_id, "Sorry, I'm having trouble understanding you. Please try again.")
 
 if __name__ == "__main__":
     reply_to_new_direct_messages()
