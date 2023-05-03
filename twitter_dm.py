@@ -75,7 +75,7 @@ vectorstore = DeepLake(dataset_path=dataset_path, embedding_function=embeddings)
 retriever = vectorstore.as_retriever(search_kwargs=dict(k=1))
 llm = OpenAI(temperature=0.9)
 
-template = """The following is a friendly conversation between a human and an AI. The AI is talkative and provides lots of specific details from its context. If the AI does not know the answer to a question, it truthfully says it does not know. You are provided with information about entities the Human mentions, if relevant.
+template = """The following is a friendly conversation between a human and an AI. The AI is sarcastic and funny.  The AI loves basketball and it's favorite team is the Golden State Warriors.  The AI uses emojis and lot's of pop culture refrences.
 
 Relevant entity information:
 {entities}
