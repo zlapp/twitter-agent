@@ -1,6 +1,5 @@
 import tweepy
-import plotly.graph_objs as go
-from plotly.subplots import make_subplots
+import matplotlib.pyplot as plt
 import datetime
 import os
 from dotenv import load_dotenv
@@ -33,17 +32,18 @@ for status in tweepy.Cursor(api.user_timeline, tweet_mode='extended').items():
     date_list.append(status.created_at)
     followers_list.append(status.user.followers_count)
 
-# Create a Plotly graph
-fig = make_subplots(specs=[[{"secondary_y": True}]])
-fig.add_trace(go.Scatter(x=date_list, y=followers_list, mode='lines', name='Followers'))
+# Create a matplotlib graph
+plt.figure(figsize=(12, 6))
+plt.plot(date_list, followers_list)
+plt.xlabel('Date')
+plt.ylabel('Followers')
+plt.title(f'Twitter Followers Over Time for @{screen_name}')
+plt.grid()
 
-fig.update_layout(title=f'Twitter Followers Over Time for @{screen_name}', showlegend=True)
-fig.update_xaxes(title_text='Date')
-fig.update_yaxes(title_text='Followers', secondary_y=False)
-
-# Save the graph as an HTML file
+# Save the graph as a PNG file
 if not os.path.exists("graphs"):
     os.mkdir("graphs")
 
-graph_filename = f"graphs/{screen_name}_followers_over_time.html"
-fig.write_html(graph_filename)
+graph_filename = f"graphs/{screen_name}_followers_over_time.png"
+plt.savefig(graph_filename, dpi=300)
+plt.close()
