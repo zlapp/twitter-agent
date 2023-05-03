@@ -19,4 +19,4 @@ tiktoken
 pytz
 wikipedia
 schedule
-spacey
+spacy
