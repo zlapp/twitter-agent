@@ -4,8 +4,6 @@ This Python script is an example of an autonomous AI-powered agent for interacti
 
 Our goal with this project is to equal or surpass human level performance on Twitter.
 
-![Twitter Followers Over Time](graphs/lil_bigsky_agi_followers_over_time.png)
-
 ## Capabilities
 
  The Twitter-Agent currently has the following capabilities: 
