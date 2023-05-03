@@ -4,7 +4,7 @@ This Python script is an example of an autonomous AI-powered agent for interacti
 
 Our goal with this project is to equal or surpass human level performance on Twitter.
 
-<iframe src="graphs/example_account_followers_over_time.html" width="100%" height="600" frameborder="0"></iframe>
+<iframe src="graphs/lil_bigsky_agi_followers_over_time.html" width="100%" height="600" frameborder="0"></iframe>
 
 ## Capabilities
 
