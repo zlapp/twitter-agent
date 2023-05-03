@@ -28,6 +28,8 @@ Next up: We plan to add longterm memory for all important actions as well as pro
 
 ### Execution
 
+Some modules will not work unless you are signed up for a paid API key through Twitter.
+
 1. First, run `python main.py` to authenticate your Twitter account using OAUTH2.
 2. Once authenticated, run `python twitter_schedular.py` to start the AGI.
 3. Write prompts.  `cp example_prompts.py prompts.py` and add prompts.

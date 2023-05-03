@@ -18,6 +18,11 @@ auth = tweepy.OAuth1UserHandler(
 )
 
 api = tweepy.API(auth)
+screen_name = "lil_bigsky_agi"
+
+user = api.get_user(screen_name)
+followers_count = user.followers_count
+created_at = user.created_at
 
 la_trend = api.get_place_trends(id=2442047)
 print('LOS ANGELES TRENDS')
