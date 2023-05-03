@@ -24,7 +24,7 @@ def perform_action():
     ]
 
     probabilities = [
-        0.0,  # reply_to_new_direct_messages
+        #0.0,  # reply_to_new_direct_messages
         0.3,  # quote_tweet
         0.2,  # post_tweet
         0.2,  # like_timeline_tweets
