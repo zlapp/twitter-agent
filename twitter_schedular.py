@@ -2,7 +2,6 @@ import random
 import schedule
 import yaml
 import time
-#from twitter_dm import reply_to_new_direct_messages
 from twitter_gif_reply import respond_to_timeline_tweets
 from twitter_quote_tweet import quote_tweet
 from twitter_post_tweet import post_tweet
@@ -16,7 +15,6 @@ def weighted_random_choice(actions, probabilities):
 
 def perform_action():
     actions = [
-        #reply_to_new_direct_messages,
         quote_tweet,
         post_tweet,
         like_timeline_tweets,
@@ -24,7 +22,6 @@ def perform_action():
     ]
 
     probabilities = [
-        #0.0,  # reply_to_new_direct_messages
         0.3,  # quote_tweet
         0.2,  # post_tweet
         0.2,  # like_timeline_tweets
